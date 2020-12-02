@@ -42,7 +42,36 @@ void binaryGen(size_t size, int* bin, size_t i, int*** comb, int* track,
   binaryGen(size, bin, i + 1, comb, track, num_subsets);
 }
 
-void init() {}
+void init(int** bin, int*** comb, unsigned int num_subsets, size_t size) {
+  *bin = malloc((size - 1) * sizeof(int));
+  *comb = malloc(num_subsets * sizeof(*bin));
+  for (size_t i = 0; i < num_subsets; i++) {
+    (*comb)[i] = malloc((size - 1) * sizeof(int));
+  }
+}
+
+void releaseMem(int** arr, int** bin, int*** comb, unsigned int num_subsets) {
+  if (*arr && *bin && *comb) {
+    free(*arr);
+    free(*bin);
+    for (size_t i = 0; i < num_subsets; i++) {
+      free((*comb)[i]);
+    }
+    free(*comb);
+  }
+}
+
+char* splitNum(int** comb, int* arr, unsigned int num_subsets, size_t size) {
+  char* joined = NULL;
+  char* result = malloc(num_subsets * sizeof(char*));
+
+  for (size_t i = 0; i < num_subsets; i++) {
+    for (size_t j = 0; j < size - 1; j++) {
+    }
+  }
+
+  return result;
+}
 
 int* convert2Int(char* s, size_t size) {
   size_t i = 0;
@@ -54,34 +83,15 @@ int* convert2Int(char* s, size_t size) {
 }
 
 void numDecodings(char* s) {
-  // Initialization
+  int* bin;
+  int** comb;
   int track = 0;
   size_t size = strlen(s);
-  int* arr = convert2Int(s, size);
-  int* bin = malloc((size - 1) * sizeof(int));
   unsigned int num_subsets = pow(2, size - 1);
-  int** comb = malloc(num_subsets * sizeof(bin));
-
-  for (size_t i = 0; i < num_subsets; i++) {
-    comb[i] = malloc((size - 1) * sizeof(int));
-  }
-
+  init(&bin, &comb, num_subsets, size);
+  int* arr = convert2Int(s, size);
   binaryGen(size - 1, bin, 0, &comb, &track, num_subsets);
-
-  for (size_t i = 0; i < num_subsets; i++) {
-    for (size_t j = 0; j < size - 1; j++) {
-      printf("%d ", comb[i][j]);
-    }
-    printf("\n");
-  }
-
-  if (arr && comb) {
-    free(arr);
-    for (size_t i = 0; i < num_subsets; i++) {
-      free(comb[i]);
-    }
-    free(comb);
-  }
+  releaseMem(&arr, &bin, &comb, num_subsets);
 }
 
 int main() {
