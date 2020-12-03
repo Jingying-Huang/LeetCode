@@ -50,14 +50,17 @@ void init(int** bin, int*** comb, unsigned int num_subsets, size_t size) {
   }
 }
 
-void releaseMem(int** arr, int** bin, int*** comb, unsigned int num_subsets) {
+void releaseMem(int** arr, int** bin, int*** comb, unsigned int num_subsets,
+                char*** result) {
   if (*arr && *bin && *comb) {
     free(*arr);
     free(*bin);
     for (size_t i = 0; i < num_subsets; i++) {
       free((*comb)[i]);
+      free((*result)[i]);
     }
     free(*comb);
+    free(*result);
   }
 }
 
@@ -65,6 +68,27 @@ char* append(char* str1, char* str2) {
   char* result = NULL;
   asprintf(&result, "%s%s", str1, str2);
   return result;
+}
+
+void calNum(char*** result, unsigned int num_subsets) {
+  int num = 0;
+  for (size_t i = 0; i < num_subsets; i++) {
+    char* str = strdup((*result)[i]);
+    char* token = strtok(str, "-");
+    while (token != NULL) {
+      // if (atoi(token) > 0 || atoi(token) <= 26) {
+      //   ++num;
+      // } else {
+      //   if (num > 0) {
+      //     --num;
+      //   }
+      // }
+      printf("%s\n", token);
+      token = strtok(NULL, "-");
+    }
+    printf("\n");
+  }
+  printf("The result is: %d", num);
 }
 
 char** splitNum(int** comb, char* s, unsigned int num_subsets, size_t size,
@@ -78,7 +102,6 @@ char** splitNum(int** comb, char* s, unsigned int num_subsets, size_t size,
     char* joined = "";
     char* dash = "-";
     joined = append(joined, &first);
-
     for (size_t j = 0; j < size - 1; j++) {
       if (comb[i][j] == 1) {
         joined = append(joined, dash);
@@ -88,9 +111,7 @@ char** splitNum(int** comb, char* s, unsigned int num_subsets, size_t size,
         joined = append(joined, &symbol);
       }
     }
-
     strcpy(result[i], joined);
-    printf("%s\n", joined);
   }
   return result;
 }
@@ -115,12 +136,8 @@ void numDecodings(char* s) {
   int* arr = convert2Int(s, size);
   binaryGen(size - 1, bin, 0, &comb, &track, num_subsets);
   char** result = splitNum(comb, s, num_subsets, size, first);
-
-  // for (size_t i = 0; i < num_subsets; i++) {
-  //   printf("%c ", result[i]);
-  // }
-
-  releaseMem(&arr, &bin, &comb, num_subsets);
+  calNum(&result, num_subsets);
+  releaseMem(&arr, &bin, &comb, num_subsets, &result);
 }
 
 int main() {
