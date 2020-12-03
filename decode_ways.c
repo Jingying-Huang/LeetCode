@@ -67,7 +67,8 @@ char* append(char* str1, char* str2) {
   return result;
 }
 
-char** splitNum(int** comb, char* s, unsigned int num_subsets, size_t size) {
+char** splitNum(int** comb, char* s, unsigned int num_subsets, size_t size,
+                char first) {
   char** result = malloc(num_subsets * sizeof(char*));
   for (size_t i = 0; i < num_subsets; i++) {
     result[i] = malloc(15 * sizeof(char));
@@ -76,19 +77,18 @@ char** splitNum(int** comb, char* s, unsigned int num_subsets, size_t size) {
   for (size_t i = 0; i < num_subsets; i++) {
     char* joined = "";
     char* dash = "-";
-    char first = s[0];
-    joined = append(joined, s);
+    joined = append(joined, &first);
 
     for (size_t j = 0; j < size - 1; j++) {
       if (comb[i][j] == 1) {
         joined = append(joined, dash);
-      } else {
-        if (j + 1 < size - 1) {
-          char symbol = s[j + 1];
-          joined = append(joined, &symbol);
-        }
+      }
+      if (j + 1 < size) {
+        char symbol = s[j + 1];
+        joined = append(joined, &symbol);
       }
     }
+
     strcpy(result[i], joined);
     printf("%s\n", joined);
   }
@@ -108,12 +108,13 @@ void numDecodings(char* s) {
   int* bin;
   int** comb;
   int track = 0;
+  char first = s[0];
   size_t size = strlen(s);
   unsigned int num_subsets = pow(2, size - 1);
   init(&bin, &comb, num_subsets, size);
   int* arr = convert2Int(s, size);
   binaryGen(size - 1, bin, 0, &comb, &track, num_subsets);
-  char** result = splitNum(comb, s, num_subsets, size);
+  char** result = splitNum(comb, s, num_subsets, size, first);
 
   // for (size_t i = 0; i < num_subsets; i++) {
   //   printf("%c ", result[i]);
