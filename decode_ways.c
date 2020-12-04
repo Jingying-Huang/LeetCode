@@ -75,15 +75,14 @@ void calNum(char*** result, unsigned int num_subsets) {
   for (size_t i = 0; i < num_subsets; i++) {
     char* str = strdup((*result)[i]);
     char* token = strtok(str, "-");
+
     while (token != NULL) {
-      // if (atoi(token) > 0 || atoi(token) <= 26) {
-      //   ++num;
-      // } else {
-      //   if (num > 0) {
-      //     --num;
-      //   }
-      // }
       printf("%s\n", token);
+      if (atoi(token) > 0 && atoi(token) <= 26) {
+        ++num;
+      } else {
+        --num;
+      }
       token = strtok(NULL, "-");
     }
     printf("\n");
