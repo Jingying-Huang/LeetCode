@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -20,7 +21,7 @@ E.g.
   As 12345 would be 0000, 12-345 would be 0100
 */
 
-void get2dArr(int* arr, int num_subsets, int*** comb, int* track, size_t size) {
+void get2dArr(int *arr, int num_subsets, int ***comb, int *track, size_t size) {
   if (*track < num_subsets) {
     for (size_t i = 0; i < size; i++) {
       (*comb)[*track][i] = arr[i];
@@ -29,7 +30,7 @@ void get2dArr(int* arr, int num_subsets, int*** comb, int* track, size_t size) {
   ++*track;
 }
 
-void binaryGen(size_t size, int* bin, size_t i, int*** comb, int* track,
+void binaryGen(size_t size, int *bin, size_t i, int ***comb, int *track,
                int num_subsets) {
   if (i == size) {
     get2dArr(bin, num_subsets, comb, track, size);
@@ -42,7 +43,7 @@ void binaryGen(size_t size, int* bin, size_t i, int*** comb, int* track,
   binaryGen(size, bin, i + 1, comb, track, num_subsets);
 }
 
-void init(int** bin, int*** comb, unsigned int num_subsets, size_t size) {
+void init(int **bin, int ***comb, unsigned int num_subsets, size_t size) {
   *bin = malloc((size - 1) * sizeof(int));
   *comb = malloc(num_subsets * sizeof(*bin));
   for (size_t i = 0; i < num_subsets; i++) {
@@ -50,8 +51,8 @@ void init(int** bin, int*** comb, unsigned int num_subsets, size_t size) {
   }
 }
 
-void releaseMem(int** arr, int** bin, int*** comb, unsigned int num_subsets,
-                char*** result) {
+void releaseMem(int **arr, int **bin, int ***comb, unsigned int num_subsets,
+                char ***result) {
   if (*arr && *bin && *comb) {
     free(*arr);
     free(*bin);
@@ -64,17 +65,18 @@ void releaseMem(int** arr, int** bin, int*** comb, unsigned int num_subsets,
   }
 }
 
-char* append(char* str1, char* str2) {
-  char* result = NULL;
+char *append(char *str1, char *str2) {
+  char *result = NULL;
   asprintf(&result, "%s%s", str1, str2);
+  free(result);
   return result;
 }
 
-void calNum(char*** result, unsigned int num_subsets) {
+void calNum(char ***result, unsigned int num_subsets) {
   int num = 0;
   for (size_t i = 0; i < num_subsets; i++) {
-    char* str = strdup((*result)[i]);
-    char* token = strtok(str, "-");
+    char *str = strdup((*result)[i]);
+    char *token = strtok(str, "-");
 
     while (token != NULL) {
       printf("%s\n", token);
@@ -90,16 +92,16 @@ void calNum(char*** result, unsigned int num_subsets) {
   printf("The result is: %d", num);
 }
 
-char** splitNum(int** comb, char* s, unsigned int num_subsets, size_t size,
+char **splitNum(int **comb, char *s, unsigned int num_subsets, size_t size,
                 char first) {
-  char** result = malloc(num_subsets * sizeof(char*));
+  char **result = malloc(num_subsets * sizeof(char *));
   for (size_t i = 0; i < num_subsets; i++) {
     result[i] = malloc(15 * sizeof(char));
   }
 
   for (size_t i = 0; i < num_subsets; i++) {
-    char* joined = "";
-    char* dash = "-";
+    char *joined = "";
+    char *dash = "-";
     joined = append(joined, &first);
     for (size_t j = 0; j < size - 1; j++) {
       if (comb[i][j] == 1) {
@@ -115,26 +117,30 @@ char** splitNum(int** comb, char* s, unsigned int num_subsets, size_t size,
   return result;
 }
 
-int* convert2Int(char* s, size_t size) {
+int *convert2Int(char *s, size_t size) {
   size_t i = 0;
-  int* arr = malloc(size * sizeof(int));
+  int *arr = malloc(size * sizeof(int));
   for (; i < size; ++i) {
     arr[i] = s[i] - '0';
   }
   return arr;
 }
 
-void numDecodings(char* s) {
-  int* bin;
-  int** comb;
+void numDecodings(char *s) {
+  // Including math.h brings in the declaration of the various functions and not
+  // their definition. The def is present in the math library libm.a. You need
+  // to link your program with this library so that the calls to functions like
+  // pow() are resolved.
+  int *bin;
+  int **comb;
   int track = 0;
   char first = s[0];
   size_t size = strlen(s);
   unsigned int num_subsets = pow(2, size - 1);
   init(&bin, &comb, num_subsets, size);
-  int* arr = convert2Int(s, size);
+  int *arr = convert2Int(s, size);
   binaryGen(size - 1, bin, 0, &comb, &track, num_subsets);
-  char** result = splitNum(comb, s, num_subsets, size, first);
+  char **result = splitNum(comb, s, num_subsets, size, first);
   calNum(&result, num_subsets);
   releaseMem(&arr, &bin, &comb, num_subsets, &result);
 }
